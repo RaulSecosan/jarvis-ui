@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars, Float } from '@react-three/drei'
 import { Suspense, useRef } from 'react'
 import * as THREE from 'three'
+import React from 'react'
 import { useSettings } from './SettingsContext'
 
 function GridFloor() {
@@ -92,9 +93,30 @@ function DataRings() {
   )
 }
 
+function SceneSettings({ orbitRef }: { orbitRef: React.RefObject<any> }) {
+  const { settings } = useSettings()
+  const first = React.useRef(true)
+  React.useEffect(() => {
+    const controls = orbitRef.current
+    if (!controls) return
+    if (first.current) {
+      first.current = false
+    } else {
+      controls.reset()
+    }
+    controls.enableZoom = settings.orbitEnabled
+    controls.enablePan = settings.orbitEnabled
+    controls.enableRotate = settings.orbitEnabled
+    controls.autoRotate = settings.autoRotate && !settings.orbitEnabled
+    controls.autoRotateSpeed = settings.orbitSpeed
+    controls.update()
+  }, [orbitRef, settings.orbitEnabled, settings.autoRotate, settings.orbitSpeed])
+  return null
+}
+
 export default function Background3D() {
   const { settings } = useSettings()
-
+  const orbitRef = React.useRef<any>(null)
   const colorMap = {
     cyan: '#22d3ee',
     emerald: '#34d399',
@@ -119,6 +141,8 @@ export default function Background3D() {
             <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
           )}
           <OrbitControls
+            ref={orbitRef}
+            makeDefault
             enableZoom={settings.orbitEnabled}
             enablePan={settings.orbitEnabled}
             enableRotate={settings.orbitEnabled}
@@ -127,6 +151,7 @@ export default function Background3D() {
             maxPolarAngle={Math.PI / 2.2}
             minPolarAngle={Math.PI / 4}
           />
+          <SceneSettings orbitRef={orbitRef} />
         </Suspense>
       </Canvas>
     </div>
