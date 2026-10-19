@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
+import { useSettings } from '@/components/SettingsContext'
 
 interface Message {
   id: string
