@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars, Float } from '@react-three/drei'
 import { Suspense, useRef } from 'react'
 import * as THREE from 'three'
+import { useSettings } from './SettingsContext'
 
 function GridFloor() {
   return (
@@ -14,9 +15,8 @@ function GridFloor() {
   )
 }
 
-function FloatingParticles() {
+function FloatingParticles({ count = 500 }: { count?: number }) {
   const particles = useRef<THREE.Points>(null)
-  const count = 500
   const positions = new Float32Array(count * 3)
 
   for (let i = 0; i < count; i++) {
@@ -93,6 +93,15 @@ function DataRings() {
 }
 
 export default function Background3D() {
+  const { settings } = useSettings()
+
+  const colorMap = {
+    cyan: '#22d3ee',
+    emerald: '#34d399',
+    violet: '#a78bfa',
+  }
+  const accentColor = colorMap[settings.colorScheme]
+
   return (
     <div className="fixed inset-0 z-0">
       <Canvas camera={{ position: [0, 5, 10], fov: 60 }}>
@@ -100,18 +109,21 @@ export default function Background3D() {
           <color attach="background" args={['#020617']} />
           <fog attach="fog" args={['#020617', 10, 50]} />
           <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} color="#22d3ee" />
+          <pointLight position={[10, 10, 10]} intensity={1} color={accentColor} />
           <pointLight position={[-10, -10, -10]} intensity={0.5} color="#a78bfa" />
-          <GridFloor />
-          <FloatingParticles />
+          {settings.showGrid && <GridFloor />}
+          <FloatingParticles count={settings.particleCount} />
           <CentralCore />
           <DataRings />
-          <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
+          {settings.showStars && (
+            <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
+          )}
           <OrbitControls
-            enableZoom={false}
-            enablePan={false}
-            autoRotate
-            autoRotateSpeed={0.3}
+            enableZoom={settings.orbitEnabled}
+            enablePan={settings.orbitEnabled}
+            enableRotate={settings.orbitEnabled}
+            autoRotate={settings.autoRotate && !settings.orbitEnabled}
+            autoRotateSpeed={settings.orbitSpeed}
             maxPolarAngle={Math.PI / 2.2}
             minPolarAngle={Math.PI / 4}
           />

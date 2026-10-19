@@ -9,6 +9,7 @@ const navItems = [
   { href: '/', label: 'AR-Shell', icon: '◈' },
   { href: '/neural-canvas', label: 'Neural Canvas', icon: '◉' },
   { href: '/chat', label: 'Chat', icon: '◬' },
+  { href: '/settings', label: 'Settings', icon: '⚙' },
 ]
 
 export default function Navigation() {

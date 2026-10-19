@@ -19,21 +19,12 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ]
 
-const AI_RESPONSES = [
-  'Am înțeles. Procesez cererea ta acum.',
-  'Sistemul funcționează normal. Toate modulele sunt active.',
-  'Am analizat datele și sunt gata cu rezultatele.',
-  'Cererea a fost executată cu succes. Mai ceva?',
-  'Monitorizez sistemul încontinuu. Nu am observat anomalii.',
-  'Memoria este sincronizată. Contextul păstrează.',
-  'Task-ul a fost adăugat în coada de execuție.',
-]
-
 export default function ChatView() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { settings } = useSettings()
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -53,17 +44,43 @@ export default function ChatView() {
     setInput('')
     setIsTyping(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: AI_RESPONSES[Math.floor(Math.random() * AI_RESPONSES.length)],
-        timestamp: new Date(),
+    if (settings.chatEngine === 'hermes') {
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: input.trim() }),
+        })
+        const data = await res.json()
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.response || data.error || 'Eroare de la Hermes Agent.',
+          timestamp: new Date(),
+        }
+        setMessages(prev => [...prev, aiResponse])
+      } catch {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: 'Nu m-am putut conecta la Hermes Agent. Verifică serverul.',
+          timestamp: new Date(),
+        }
+        setMessages(prev => [...prev, aiResponse])
       }
-      setMessages(prev => [...prev, aiResponse])
-      setIsTyping(false)
-    }, 1500 + Math.random() * 1000)
+    } else {
+      setTimeout(() => {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: 'Mock response: ' + input.trim(),
+          timestamp: new Date(),
+        }
+        setMessages(prev => [...prev, aiResponse])
+        setIsTyping(false)
+      }, 800)
+    }
+    setIsTyping(false)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

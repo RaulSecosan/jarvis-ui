@@ -1,5 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/neural-canvas/page": "app/neural-canvas/page.js",
-  "/chat/page": "app/chat/page.js"
-}

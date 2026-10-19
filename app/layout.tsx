@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { SettingsProvider } from '@/components/SettingsContext'
 
 export const metadata: Metadata = {
   title: 'JARVIS — AI Assistant',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="ro">
       <body className="bg-jarvis-bg text-jarvis-text font-sans">
-        {children}
+        <SettingsProvider>
+          {children}
+        </SettingsProvider>
       </body>
     </html>
   )
