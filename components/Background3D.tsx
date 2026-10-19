@@ -99,11 +99,11 @@ function SceneSettings({ orbitRef }: { orbitRef: React.RefObject<any> }) {
   React.useEffect(() => {
     const controls = orbitRef.current
     if (!controls) return
-    if (first.current) {
-      first.current = false
-    } else {
-      controls.reset()
+    if (!first.current) {
+      controls.saveState()
     }
+    first.current = false
+    controls.target.set(0, 0, 0)
     controls.enableZoom = settings.orbitEnabled
     controls.enablePan = settings.orbitEnabled
     controls.enableRotate = settings.orbitEnabled
@@ -143,6 +143,7 @@ export default function Background3D() {
           <OrbitControls
             ref={orbitRef}
             makeDefault
+            target={[0, 0, 0]}
             enableZoom={settings.orbitEnabled}
             enablePan={settings.orbitEnabled}
             enableRotate={settings.orbitEnabled}
